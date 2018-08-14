@@ -5,12 +5,20 @@ import serial
 
 parser = argparse.ArgumentParser(description='Send strings over USB')
 parser.add_argument('--string', required=True, help='The string to send')
+parser.add_argument('--port', required=False, help='USB port to use, defaults to /dev/ttyUSB0')
 args = parser.parse_args()
 
-ser = serial.Serial("/dev/ttyUSB0",9600)
+cmd = vars(args)["string"]
+port = vars(args)["port"]
+
+if port is None or port == "":
+	port = "/dev/ttyUSB0"
+print(port)
+
+ser = serial.Serial(port,9600)
 ser.flushInput()
 
-cmd = vars(args)["string"]
+
 if cmd is not None:
 	ser.write(str.encode(cmd))
 
