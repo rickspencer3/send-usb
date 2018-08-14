@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+
+import argparse
+import serial
+
+parser = argparse.ArgumentParser(description='Send strings over USB')
+parser.add_argument('--string', required=True, help='The string to send')
+args = parser.parse_args()
+
+ser = serial.Serial("/dev/ttyUSB0",9600)
+ser.flushInput()
+
+cmd = vars(args)["string"]
+if cmd is not None:
+	ser.write(str.encode(cmd))
+
+
+
+
