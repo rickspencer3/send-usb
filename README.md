@@ -6,12 +6,14 @@ Simple program for sending data over USB. I use it to simply testing of RF trans
 
 # usage
 ```
-$ ./send-usb --help
-usage: send-usb [-h] --string STRING
+ $ ./send-usb --help
+usage: send-usb [-h] --string STRING [--port PORT]
 
 Send strings over USB
 
 optional arguments:
   -h, --help       show this help message and exit
   --string STRING  The string to send
+  --port PORT      USB port to use, defaults to /dev/ttyUSB0
+
 ```
