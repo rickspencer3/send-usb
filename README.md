@@ -2,7 +2,6 @@
 Simple program for sending data over USB. I use it to simply testing of RF transmitter projects by sending commands to an arduino with and RF24Lo1 attached. The arduino code is  [here](https://github.com/rickspencer3/sketchbook/tree/master/rf_usb_transmitter).
 
 # TODO
- * Support USB paths other than /dev/tty/usb0 (add an optional argument)
  * Support modem speeds other than 9600 (add an optional argument)
 
 # usage
