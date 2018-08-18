@@ -3,6 +3,7 @@ Simple program for sending data over USB. I use it to simply testing of RF trans
 
 # TODO
  * Support modem speeds other than 9600 (add an optional argument)
+ * Make the delay time configurable, and default to zero
 
 # usage
 ```
