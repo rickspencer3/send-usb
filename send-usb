@@ -2,6 +2,8 @@
 
 import argparse
 import serial
+from time import sleep 
+
 
 parser = argparse.ArgumentParser(description='Send strings over USB')
 parser.add_argument('--string', required=True, help='The string to send')
@@ -11,17 +13,22 @@ args = parser.parse_args()
 cmd = vars(args)["string"]
 port = vars(args)["port"]
 
+#port defaults to /dev/ttyUSB0
+#TODO: do a query and pick a sensible and non-platform specific default
 if port is None or port == "":
 	port = "/dev/ttyUSB0"
-print(port)
 
-ser = serial.Serial(port,9600)
-ser.flushInput()
+ser = serial.serial_for_url(port, do_not_open=True)
+ser.baudrate = 9600
+ser.open()
 
+#sleep for 1 second after opening the port to give devices like arduinos a chance to reset
+sleep(1)
 
 if cmd is not None:
 	ser.write(str.encode(cmd))
+	ser.flush()
 
 
 
-
+  
