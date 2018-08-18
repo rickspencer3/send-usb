@@ -6,12 +6,14 @@ from time import sleep
 
 
 parser = argparse.ArgumentParser(description='Send strings over USB')
-parser.add_argument('--string', required=True, help='The string to send')
-parser.add_argument('--port', required=False, help='USB port to use, defaults to /dev/ttyUSB0')
+parser.add_argument('--string', required=True,  help='The string to send')
+parser.add_argument('--port', required=False,  help='USB port to use, defaults to /dev/ttyUSB0')
+parser.add_argument('--wait', required=False, default=0, type=int, help='Second to wait after opening the connection. Useful for devices like arduino that are rest when the serial connection is opened.')
 args = parser.parse_args()
 
 cmd = vars(args)["string"]
 port = vars(args)["port"]
+wait = vars(args)["wait"]
 
 #port defaults to /dev/ttyUSB0
 #TODO: do a query and pick a sensible and non-platform specific default
@@ -22,8 +24,8 @@ ser = serial.serial_for_url(port, do_not_open=True)
 ser.baudrate = 9600
 ser.open()
 
-#sleep for 1 second after opening the port to give devices like arduinos a chance to reset
-sleep(1)
+if wait > 0:
+	sleep(wait)
 
 if cmd is not None:
 	ser.write(str.encode(cmd))
