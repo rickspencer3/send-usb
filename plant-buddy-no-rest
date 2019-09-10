@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+import argparse
+import serial
+from time import sleep 
+import datetime
+import requests
+
+
+parser = argparse.ArgumentParser(description='Upload data from Plant Buddy')
+parser.add_argument('--port', required=False,  help='USB port to use, defaults to /dev/ttyUSB0')
+parser.add_argument('--wait', required=False, default=0, type=int, help='Second to wait after opening the connection. Useful for devices like arduino that are rest when the serial connection is opened.')
+parser.add_argument('--baud', required=False, default=9600, type=int, help='Desired baud rate. Defaults to 9600.')
+
+args = parser.parse_args()
+
+port = vars(args)["port"]
+wait = vars(args)["wait"]
+baud = vars(args)["baud"]
+
+reading_names = {"AT":"airTemp", "SM":"soilMoisture", 
+				"HU":"humidity", "ST":"soilTemp", 
+				 "LI":"light"}
+
+sensor_names = {"AT":"temp", "SM":"moisture", 
+				"HU":"humidity", "ST":"temp", 
+				 "LI":"light"}
+
+#port defaults to /dev/ttyUSB0
+#TODO: do a query and pick a sensible and non-platform specific default
+if port is None or port == "":
+	port = "/dev/ttyUSB0"
+
+ser = serial.serial_for_url(port, do_not_open=True)
+ser.baudrate = baud
+ser.open()
+
+if wait > 0:
+	sleep(wait)
+
+def get_line_protocol(sensor, reading, value):
+	line = "{} {}={} {}"
+	timestamp = str(int(datetime.datetime.now().timestamp() * 1000))
+	return line.format(sensor, reading, value, timestamp)
+
+while True:
+    raw_input = str(ser.readline())
+    trimmed_input = raw_input[2:][:-5]
+    sensor_code = trimmed_input[2:4]
+    if sensor_code in reading_names:
+        value = trimmed_input[-3:]
+        sensor = sensor_names[sensor_code]
+        reading = reading_names[sensor_code]
+        print(get_line_protocol(sensor, reading, value))
+        sleep(3)
+	

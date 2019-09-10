@@ -3,17 +3,15 @@
 import argparse
 import serial
 from time import sleep 
+import datetime
 
-
-parser = argparse.ArgumentParser(description='Send strings over USB')
-parser.add_argument('--string', required=True,  help='The string to send')
+parser = argparse.ArgumentParser(description='Read strings over USB')
 parser.add_argument('--port', required=False,  help='USB port to use, defaults to /dev/ttyUSB0')
 parser.add_argument('--wait', required=False, default=0, type=int, help='Second to wait after opening the connection. Useful for devices like arduino that are rest when the serial connection is opened.')
 parser.add_argument('--baud', required=False, default=9600, type=int, help='Desired baud rate. Defaults to 9600.')
 
 args = parser.parse_args()
 
-cmd = vars(args)["string"]
 port = vars(args)["port"]
 wait = vars(args)["wait"]
 baud = vars(args)["baud"]
@@ -31,9 +29,15 @@ ser.open()
 if wait > 0:
 	sleep(wait)
 
-if cmd is not None:
-	ser.write(str.encode(cmd))
-	ser.flush()
+logFile = open('log.txt','a');
+
+while True:
+     cc=str(ser.readline())
+     nowString = str(datetime.datetime.now());
+     logString = nowString + ":" + cc + "\n"
+     print(logString);
+     logFile.write(logString)
+     logFile.flush();
 
 
 
