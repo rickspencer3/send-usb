@@ -11,26 +11,34 @@ parser = argparse.ArgumentParser(description='Upload data from Plant Buddy')
 parser.add_argument('--port', required=False,  help='USB port to use, defaults to /dev/ttyUSB0')
 parser.add_argument('--wait', required=False, default=0, type=int, help='Second to wait after opening the connection. Useful for devices like arduino that are rest when the serial connection is opened.')
 parser.add_argument('--baud', required=False, default=9600, type=int, help='Desired baud rate. Defaults to 9600.')
-
+parser.add_argument('--token', required=True, type=str, help='Your InfluxDB REST token. This argument is required.')
+parser.add_argument('--org', required=False, type=str, default="rick@influxdata.com", help='Your InfluxDB organization name. This argument is required.')
+parser.add_argument('--url', required=False, type=str, default="https://us-west-2-1.aws.cloud2.influxdata.com/", help="defaults to Cloud 2")
+parser.add_argument('--bucket', required=False, type=str, default="PlantBuddy", help="the bucket to write to") 
 args = parser.parse_args()
 
+#variables related to reading from the USB port
 port = vars(args)["port"]
 wait = vars(args)["wait"]
 baud = vars(args)["baud"]
 
+#mapping to turn info from the arduino to something readable
 reading_names = {"AT":"airTemp", "SM":"soilMoisture", 
 				"HU":"humidity", "ST":"soilTemp", 
 				 "LI":"light"}
 
-field_names = {"AT":"temp", "SM":"moisture", 
+sensor_names = {"AT":"temp", "SM":"moisture", 
 				"HU":"humidity", "ST":"temp", 
 				 "LI":"light"}
 
 
-influx_url = "http://192.168.1.196:9999/"
-influx_token = "vJnHGjlXEQq3qodZYlYx6klcKhcqs4zyzkq1envDHIL2Vt7wfHj_IoX9aooYWQE7c8Er9ns7Tq7DOZjCG9WoTQ=="
+#variables related to using the REST API  
+influx_url = vars(args)["url"]
+influx_token = vars(args)["token"]
+organization = vars(args)["org"]
+bucket = vars(args)["bucket"]
 precision = "ms"
-organization = "PlantBuddy"
+
 
 #port defaults to /dev/ttyUSB0
 #TODO: do a query and pick a sensible and non-platform specific default
@@ -44,23 +52,25 @@ ser.open()
 if wait > 0:
 	sleep(wait)
 
+def get_line_protocol(sensor, reading, value):
+    line = "{} {}={} {}"
+    timestamp = str(int(datetime.datetime.now().timestamp() * 1000))
+    return line.format(sensor, reading, value, timestamp)
+
+def send_line(line):
+    url = "{}api/v2/write?org={}&bucket={}&precision={}".format(influx_url, organization, bucket, precision)
+    headers = {"Authorization": "Token {}".format(influx_token)}
+    r = requests.post(url, data=line, headers=headers)
+    print(line)
+    
 while True:
-     raw_input = str(ser.readline())
-     trimmed_input = raw_input[2:][:-5]
-     device_code = trimmed_input[:2]
-     sensor_code = trimmed_input[2:4]
-     if sensor_code in reading_names:
-          reading = trimmed_input[-3:]
-          timestamp = str(int(datetime.datetime.now().timestamp() * 1000))
-          line = reading_names[sensor_code] + ",device=" + device_code
-          line += " " + field_names[sensor_code] + "=" + reading
-          line += " " + timestamp
-          
-          url = influx_url + "api/v2/write?org=" + organization + "&bucket=" + device_code + "&precision=" + precision
-          print(url)
-          headers = {"Authorization": "Token " + influx_token}
-          r = requests.post(url, data=line, headers=headers)
-          print(r.status_code)
-
-
+    raw_input = str(ser.readline())
+    trimmed_input = raw_input[2:][:-5]
+    sensor_code = trimmed_input[2:4]
+    if sensor_code in reading_names:
+        value = trimmed_input[-3:]
+        sensor = sensor_names[sensor_code]
+        reading = reading_names[sensor_code]
+        line = get_line_protocol(sensor, reading, value)
+        send_line(line)
   
