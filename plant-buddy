@@ -64,6 +64,9 @@ def send_line(line):
         r = requests.post(url, data=line, headers=headers)
         print(line)
     except:
+		# this is terrible
+		# any time there is a problem with the server, data will be lost
+		# this is a job for Telegraf
 	    print("oops")
 	    
     
