@@ -1,0 +1,15 @@
+$ ./plant-buddy --token=tfkb-kcg22A2oHQzXXHOLRZW3ohMoXyaX_FyM6Tc4KvkjYn9Z81moeL8RisoO-eXrP_TncUKNBD18v2j3RLShA==
+moisture soilMoisture=526 1568289892854
+temp airTemp=028 1568289893544
+humidity humidity=067 1568289894447
+temp soilTemp=025 1568289895168
+light light=162 1568289895809
+moisture soilMoisture=522 1568289896665
+temp airTemp=028 1568289897280
+humidity humidity=067 1568289897942
+temp soilTemp=025 1568289898565
+light light=163 1568289899160
+moisture soilMoisture=521 1568289900477
+temp airTemp=027 1568289901420
+humidity humidity=066 1568289902134
+temp soilTemp=025 1568289902849
